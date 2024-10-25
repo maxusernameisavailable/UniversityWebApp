@@ -30,13 +30,15 @@ namespace WebApplication1.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    Console.WriteLine("User created successfully. Redirecting to Login");
+                    // await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Login", "Account");
                 }
 
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
+                    Console.WriteLine(error.Description);
                 }
 
             }
@@ -50,17 +52,24 @@ namespace WebApplication1.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                Console.WriteLine(result.IsLockedOut);
+                Console.WriteLine(result.IsNotAllowed);
+                Console.WriteLine(result.RequiresTwoFactor);
 
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
+                if (result.Succeeded) { 
+                
+                    Console.WriteLine("Redirect to Home/Home");
+                    return RedirectToAction("Home", "Home");
                 }
 
+                Console.WriteLine("Invalid login attempt");
                 ModelState.AddModelError("", "Invalid login attempt");
             }
+
+            Console.WriteLine("Model is not valid");
 
             return View(model);
         }
